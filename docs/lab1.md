@@ -1,0 +1,1 @@
+![Here's the screenshot](assets/lab1_screenshot.png)

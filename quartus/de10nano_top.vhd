@@ -27,9 +27,9 @@ entity de10nano_top is
     --  Clock inputs
     --  See DE10 Nano User Manual page 23
     ----------------------------------------
-    fpga_clk1_50 : in    std_ulogic;
-    fpga_clk2_50 : in    std_ulogic;
-    fpga_clk3_50 : in    std_ulogic;
+    fpga_clk1_50 : in    std_logic;
+    fpga_clk2_50 : in    std_logic;
+    fpga_clk3_50 : in    std_logic;
 
     ----------------------------------------
     --  HDMI
@@ -148,7 +148,7 @@ entity de10nano_top is
     --  when pressed (asserted)
     --  and produce a '1' in the rest (non-pushed) state
     ----------------------------------------
-    push_button_n : in    std_ulogic_vector(1 downto 0);
+    push_button_n : in    std_logic_vector(1 downto 0);
 
     ----------------------------------------
     --  Slide switch inputs (SW)
@@ -157,14 +157,14 @@ entity de10nano_top is
     --  in the down position
     --  (towards the edge of the board)
     ----------------------------------------
-    sw : in    std_ulogic_vector(3 downto 0);
+    sw : in    std_logic_vector(3 downto 0);
 
     ----------------------------------------
     --  LED outputs
     --  See DE10 Nano User Manual page 26
     --  Setting LED to 1 will turn it on
     ----------------------------------------
-    led : out   std_ulogic_vector(7 downto 0);
+    led : out   std_logic_vector(7 downto 0);
 
     ----------------------------------------
     --  GPIO expansion headers (40-pin)
@@ -173,24 +173,24 @@ entity de10nano_top is
     --  Pin 29 = 3.3 supply (1.5A max)
     --  Pins 12, 30 = GND
     ----------------------------------------
-    gpio_0 : inout std_ulogic_vector(35 downto 0);
-    gpio_1 : inout std_ulogic_vector(35 downto 0);
+    gpio_0 : inout std_logic_vector(35 downto 0);
+    gpio_1 : inout std_logic_vector(35 downto 0);
 
     ----------------------------------------
     --  Arudino headers
     --  See DE10 Nano User Manual page 30
     ----------------------------------------
-    arduino_io      : inout std_ulogic_vector(15 downto 0);
-    arduino_reset_n : inout std_ulogic;
+    arduino_io      : inout std_logic_vector(15 downto 0);
+    arduino_reset_n : inout std_logic;
 
     ----------------------------------------
     --  ADC header
     --  See DE10 Nano User Manual page 32
     ----------------------------------------
-    adc_convst : out   std_ulogic;
-    adc_sck    : out   std_ulogic;
-    adc_sdi    : out   std_ulogic;
-    adc_sdo    : in    std_ulogic
+    adc_convst : out   std_logic;
+    adc_sck    : out   std_logic;
+    adc_sdi    : out   std_logic;
+    adc_sdo    : in    std_logic
   );
 end entity de10nano_top;
 
@@ -271,14 +271,14 @@ architecture de10nano_arch of de10nano_top is
     generic(
 		      system_clock_period : time := 20 ns
 				);
-    port(clk : in std_ulogic; -- system clock
-         rst : in std_ulogic; -- system reset (assume active high, change at top level if needed)
-         PB : in std_ulogic;  -- Pushbutton to change state (assume active high, change at top level if needed)
-         SW : in std_ulogic_vector(3 downto 0); -- Switches that determine the next state to be selected
+    port(clk : in std_logic; -- system clock
+         rst : in std_logic; -- system reset (assume active high, change at top level if needed)
+         PB : in std_logic;  -- Pushbutton to change state (assume active high, change at top level if needed)
+         SW : in std_logic_vector(3 downto 0); -- Switches that determine the next state to be selected
          HPS_LED_control: in boolean;	-- Software is in control when asserted (=1)
          Base_rate : in unsigned(7 downto 0);  -- base transition period in seconds, fixed-point data type (W=8, F=4)
-         LED_reg : in std_ulogic_vector(7 downto 0); -- LED register
-         LED : out std_ulogic_vector(7 downto 0) -- LEDs on the DE10 NANO board
+         LED_reg : in std_logic_vector(7 downto 0); -- LED register
+         LED : out std_logic_vector(7 downto 0) -- LEDs on the DE10 NANO board
 	      );		
   end component;
 
@@ -370,15 +370,15 @@ begin
       reset_reset_n => not push_button_n(1)
     );
 
-  LED_Patterns_Map : LED_Patterns generic map(system_clock_period => 20 ns)
-											 port map(clk => fpga_clk1_50,
-														 rst => not push_button_n(1),
-														 PB => not push_button_n(0),
-														 SW => sw,
-														 HPS_LED_control => false,
-														 Base_rate => "00010000",
-														 LED_reg => "00010000",
-														 LED => led);
+--  LED_Patterns_Map : LED_Patterns generic map(system_clock_period => 20 ns)
+--											 port map(clk => fpga_clk1_50,
+--														 rst => not push_button_n(1),
+--														 PB => not push_button_n(0),
+--														 SW => sw,
+--														 HPS_LED_control => false,
+--														 Base_rate => "00010000",
+--														 LED_reg => "00010000",
+--														 LED => led);
 														 
 												
 						

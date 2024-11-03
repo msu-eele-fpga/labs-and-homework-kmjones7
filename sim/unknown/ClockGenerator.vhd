@@ -4,24 +4,24 @@ use ieee.numeric_std.all;
 
 entity ClockGenerator is
   generic (system_clock_period : time := 20ns);
-  port (clk : in std_ulogic; -- system clock
-	PB : in std_ulogic;  -- Pushbutton to change state (assume active high, change at top level if needed)
-        SW : in std_ulogic_vector(3 downto 0); -- Switches that determine the next state to be selected
+  port (clk : in std_logic; -- system clock
+	PB : in std_logic;  -- Pushbutton to change state (assume active high, change at top level if needed)
+        SW : in std_logic_vector(3 downto 0); -- Switches that determine the next state to be selected
 	base_period : in unsigned(7 downto 0);
-        LEDout : out std_ulogic;
-	clkOut : out std_ulogic
+        LEDout : out std_logic;
+	clkOut : out std_logic
 	);
 
 end entity ClockGenerator;
 
 architecture ClockGenerator_arch of ClockGenerator is
-  signal testOut : std_ulogic := '0';
+  signal testOut : std_logic := '0';
   signal period : unsigned(7 downto 0);
 --  signal counter : unsigned(31 downto 0);
-  signal newFreq : std_ulogic_vector(31 downto 0);
+  signal newFreq : std_logic_vector(31 downto 0);
   signal counter : natural range 0 to 100000000;
   signal max : natural range 0 to 100000000;
-  signal toggleLED : std_ulogic := '0';
+  signal toggleLED : std_logic := '0';
   
  begin
  

@@ -9,21 +9,21 @@ architecture ClockGenerator_tb_arch of ClockGenerator_tb is
 
   component ClockGenerator is
     generic (system_clock_period : time := 20ns);
-    port (clk : in std_ulogic; -- system clock
-          PB : in std_ulogic;  -- Pushbutton to change state (assume active high, change at top level if needed)
-          SW : in std_ulogic_vector(3 downto 0); -- Switches that determine the next state to be selected
+    port (clk : in std_logic; -- system clock
+          PB : in std_logic;  -- Pushbutton to change state (assume active high, change at top level if needed)
+          SW : in std_logic_vector(3 downto 0); -- Switches that determine the next state to be selected
           base_period : in unsigned(7 downto 0);
-	  LEDout : out std_ulogic;
-          clkOut : out std_ulogic
+	  LEDout : out std_logic;
+          clkOut : out std_logic
 	  );
   end component;
 
-  signal clk_tb : std_ulogic := '0';
-  signal clkOut_tb : std_ulogic;
-  signal PB_tb : std_ulogic := '0';
-  signal SW_tb : std_ulogic_vector(3 downto 0);
+  signal clk_tb : std_logic := '0';
+  signal clkOut_tb : std_logic;
+  signal PB_tb : std_logic := '0';
+  signal SW_tb : std_logic_vector(3 downto 0);
   signal base_period_tb : unsigned(7 downto 0);
-  signal LEDout_tb : std_ulogic;
+  signal LEDout_tb : std_logic;
 
   begin
 

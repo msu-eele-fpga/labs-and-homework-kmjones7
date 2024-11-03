@@ -3,8 +3,8 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity Pattern0 is -- add genClk, LEDs, PB ?, have all patterns go into LED_Patterns and have a mux with select line
-  port(genClk : in std_ulogic;
-       LEDs : out std_ulogic_vector(6 downto 0) -- 
+  port(genClk : in std_logic;
+       LEDs : out std_logic_vector(6 downto 0) -- 
       );
 end entity;
 
@@ -30,6 +30,6 @@ architecture Pattern0_arch of Pattern0 is
         end if;
       end if;
     end if;
-    LEDs <= std_ulogic_vector(internLED);
+    LEDs <= std_logic_vector(internLED);
   end process;
 end architecture;

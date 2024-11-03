@@ -8,12 +8,12 @@ end entity;
 architecture Pattern3_tb_arch of Pattern3_tb is
 
   component Pattern3
-    port(genClk : in std_ulogic;
+    port(genClk : in std_logic;
          LEDs : out std_logic_vector(6 downto 0)
          );
   end component;
 
-  signal clk_tb : std_ulogic := '0';
+  signal clk_tb : std_logic := '0';
   signal LEDs_tb : std_logic_vector(6 downto 0);
 
   begin

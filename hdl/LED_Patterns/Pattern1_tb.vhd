@@ -8,17 +8,17 @@ end entity;
 architecture Pattern1_tb_arch of Pattern1_tb is
 
   component Pattern1
-    port(genClk : in std_ulogic;
+    port(genClk : in std_logic;
          LEDs : out std_logic_vector(6 downto 0)
          );
   end component;
 
-  signal clk_tb : std_ulogic := '0';
-  signal systemClk_tb : std_ulogic:= '0';
-  signal rst_tb : std_ulogic := '0';
+  signal clk_tb : std_logic := '0';
+  signal systemClk_tb : std_logic:= '0';
+  signal rst_tb : std_logic := '0';
   signal LEDs_tb : std_logic_vector(6 downto 0);
-  signal push_tb : std_ulogic;
-  signal SW_tb : std_ulogic_vector(3 downto 0);
+  signal push_tb : std_logic;
+  signal SW_tb : std_logic_vector(3 downto 0);
 
   begin
 

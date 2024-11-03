@@ -3,10 +3,10 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity displaySW is
-  port(clk : in std_ulogic
-       Sel : in std_ulogic_vector(3 downto 0);
+  port(clk : in std_logic
+       Sel : in std_logic_vector(3 downto 0);
        Enable : in boolean;
-       LEDs : out std_ulogic_vector(6 downto 0);
+       LEDs : out std_logic_vector(6 downto 0);
        showSW : out boolean
        );
 end entity;

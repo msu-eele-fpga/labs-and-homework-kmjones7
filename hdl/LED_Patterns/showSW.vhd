@@ -3,18 +3,18 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity showSW is -- add genClk, LEDs, PB ?, have all patterns go into LED_Patterns and have a mux with select line
-  port(systemClk : in std_ulogic;
-       SW : in std_ulogic_vector(3 downto 0);
+  port(systemClk : in std_logic;
+       SW : in std_logic_vector(3 downto 0);
        enable : in boolean;
        done : out boolean;
-       LEDs : out std_ulogic_vector(6 downto 0) -- 
+       LEDs : out std_logic_vector(6 downto 0) -- 
       );
 end entity;
 
 architecture showSW_arch of showSW is
   signal internDone : boolean:= true;
   signal count : integer:= 0;
-  signal internLEDs : std_ulogic_vector(6 downto 0);
+  signal internLEDs : std_logic_vector(6 downto 0);
   signal started : boolean:= false;
 
   begin

@@ -7,20 +7,20 @@ use altera.altera_primitives_components.all;
 
 entity led_patterns_avalon is
 port(
-	  clk : in std_ulogic;
-	  rst : in std_ulogic;
+	  clk : in std_logic;
+	  rst : in std_logic;
 	  
 	  -- avalon memory-mapped slave interface
-	  avs_read : in std_ulogic;
-	  avs_write : in std_ulogic;
-	  avs_address : in std_ulogic_vector(1 downto 0);
-	  avs_readdata : out std_ulogic_vector(31 downto 0);
-	  avs_writedata : in std_ulogic_vector(31 downto 0);
+	  avs_read : in std_logic;
+	  avs_write : in std_logic;
+	  avs_address : in std_logic_vector(1 downto 0);
+	  avs_readdata : out std_logic_vector(31 downto 0);
+	  avs_writedata : in std_logic_vector(31 downto 0);
 	  
 	  -- external I/0; export to top level
-	  push_button : in std_ulogic;
-	  switches : in std_ulogic_vector(3 downto 0);
-	  led : out std_ulogic_vector(7 downto 0)
+	  push_button : in std_logic;
+	  switches : in std_logic_vector(3 downto 0);
+	  led : out std_logic_vector(7 downto 0)
 );
 
 end entity led_patterns_avalon;
@@ -31,22 +31,22 @@ architecture led_patterns_avalon_arch of led_patterns_avalon is
     generic(
 		      system_clock_period : time := 20 ns
 				);
-    port(clk : in std_ulogic; -- system clock
-         rst : in std_ulogic; -- system reset (assume active high, change at top level if needed)
-         PB : in std_ulogic;  -- Pushbutton to change state (assume active high, change at top level if needed)
-         SW : in std_ulogic_vector(3 downto 0); -- Switches that determine the next state to be selected
+    port(clk : in std_logic; -- system clock
+         rst : in std_logic; -- system reset (assume active high, change at top level if needed)
+         PB : in std_logic;  -- Pushbutton to change state (assume active high, change at top level if needed)
+         SW : in std_logic_vector(3 downto 0); -- Switches that determine the next state to be selected
          HPS_LED_control: in boolean;	-- Software is in control when asserted (=1)
          Base_rate : in unsigned(7 downto 0);  -- base transition period in seconds, fixed-point data type (W=8, F=4)
-         LED_reg : in std_ulogic_vector(7 downto 0); -- LED register
-         LED : out std_ulogic_vector(7 downto 0) -- LEDs on the DE10 NANO board
+         LED_reg : in std_logic_vector(7 downto 0); -- LED register
+         LED : out std_logic_vector(7 downto 0) -- LEDs on the DE10 NANO board
 	      );		
   end component LED_Patterns;
 
 
   
-  signal hps_reg : std_ulogic_vector(31 downto 0) := "00000100110011001100110011001101";
-  signal bp_reg : std_ulogic_vector(31 downto 0) := "00000100110011001100110011001101";
-  signal led_reg : std_ulogic_vector(31 downto 0) := "00000100110011001100110011001101";
+  signal hps_reg : std_logic_vector(31 downto 0) := "00000000000000000000000000010000";
+  signal bp_reg : std_logic_vector(31 downto 0) :=  "00000000000000000000000000010000";
+  signal led_reg : std_logic_vector(31 downto 0) := "00000000000000000000000000010000";
   
 -- define registers and bus transactions
 
@@ -72,9 +72,9 @@ begin
   avalon_register_write : process(clk,rst)
   begin
     if rst = '1' then
-	   hps_reg <= "00000100110011001100110011001101";
-		bp_reg <= "00000100110011001100110011001101";
-		led_reg <= "00000100110011001100110011001101";
+	   hps_reg <= "00000000000000000000000000010000";
+		bp_reg <=  "00000000000000000000000000010000";
+		led_reg <= "00000000000000000000000000010000";
     elsif rising_edge(clk) and avs_write = '1' then
 	   case (avs_address) is
 		  when "00" => hps_reg <= avs_writedata;

@@ -4,25 +4,25 @@ use ieee.numeric_std.all;
 
 
 entity State_Machine is
-  port (systemClk : in std_ulogic;
-	rst : in std_ulogic; -- system reset (assume active high, change at top level if needed)
-        PB : in std_ulogic;  -- Pushbutton to change state (assume active high, change at top level if needed)
-        SW : in std_ulogic_vector(3 downto 0); -- Switches that determine the next state to be selected
+  port (systemClk : in std_logic;
+	rst : in std_logic; -- system reset (assume active high, change at top level if needed)
+        PB : in std_logic;  -- Pushbutton to change state (assume active high, change at top level if needed)
+        SW : in std_logic_vector(3 downto 0); -- Switches that determine the next state to be selected
         done : in boolean;
-        Sel : out std_ulogic_vector(3 downto 0);
+        Sel : out std_logic_vector(3 downto 0);
         enable : out boolean
        );
 end entity State_Machine;
 
 architecture State_Machine_arch of State_Machine is
-  signal sync_to_debounce : std_ulogic;
-  signal debounced : std_ulogic;
-  signal genClk : std_ulogic;
+  signal sync_to_debounce : std_logic;
+  signal debounced : std_logic;
+  signal genClk : std_logic;
   signal countLED : unsigned(7 downto 0);
   signal Base_rate : unsigned(7 downto 0);
-  signal internSel : std_ulogic_vector(3 downto 0);
-  signal internLED : std_ulogic;
-  signal sixLEDs : std_ulogic_vector(6 downto 0);
+  signal internSel : std_logic_vector(3 downto 0);
+  signal internLED : std_logic;
+  signal sixLEDs : std_logic_vector(6 downto 0);
   signal internEnable : boolean:= false;
 
 
@@ -31,9 +31,9 @@ architecture State_Machine_arch of State_Machine is
 
   component synchronizer is
     port(
-      clk : in std_ulogic;
-      async : in std_ulogic;
-      sync : out std_ulogic
+      clk : in std_logic;
+      async : in std_logic;
+      sync : out std_logic
       );
   end component synchronizer;
 
@@ -43,21 +43,21 @@ architecture State_Machine_arch of State_Machine is
       debounce_time : time
       );
     port(
-      clk : in std_ulogic;
-      rst : in std_ulogic;
-      input : in std_ulogic;
-      debounced : out std_ulogic
+      clk : in std_logic;
+      rst : in std_logic;
+      input : in std_logic;
+      debounced : out std_logic
       );
     end component debouncer;
 
   component ClockGenerator 
     generic  (system_clock_period : time := 20ns);
-    port     (clk : in std_ulogic; 
-	      PB : in std_ulogic;  
-              SW : in std_ulogic_vector(3 downto 0); 
+    port     (clk : in std_logic; 
+	      PB : in std_logic;  
+              SW : in std_logic_vector(3 downto 0); 
 	      base_period : in unsigned(7 downto 0);
-	      LEDout : out std_ulogic;
-	      clkOut : out std_ulogic
+	      LEDout : out std_logic;
+	      clkOut : out std_logic
 	      );
   end component ClockGenerator; 
 

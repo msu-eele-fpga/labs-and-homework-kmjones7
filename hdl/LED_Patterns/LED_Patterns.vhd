@@ -7,43 +7,43 @@ entity LED_patterns is
   generic(
 	       system_clock_period : time := 20 ns
 			 );
-  port(clk : in std_ulogic; -- system clock
-       rst : in std_ulogic; -- system reset (assume active high, change at top level if needed)
-       PB : in std_ulogic;  -- Pushbutton to change state (assume active high, change at top level if needed)
-       SW : in std_ulogic_vector(3 downto 0); -- Switches that determine the next state to be selected
+  port(clk : in std_logic; -- system clock
+       rst : in std_logic; -- system reset (assume active high, change at top level if needed)
+       PB : in std_logic;  -- Pushbutton to change state (assume active high, change at top level if needed)
+       SW : in std_logic_vector(3 downto 0); -- Switches that determine the next state to be selected
        HPS_LED_control: in boolean;	-- Software is in control when asserted (=1)
        Base_rate : in unsigned(7 downto 0);  -- base transition period in seconds, fixed-point data type (W=8, F=4)
-       LED_reg : in std_ulogic_vector(7 downto 0); -- LED register
-       LED : out std_ulogic_vector(7 downto 0)  -- LEDs on the DE10 NANO board
+       LED_reg : in std_logic_vector(7 downto 0); -- LED register
+       LED : out std_logic_vector(7 downto 0)  -- LEDs on the DE10 NANO board
   );
 end entity LED_patterns;
 
 architecture LED_patterns_arch of LED_patterns is
 
 -- INTERNAL SIGNALS -----------------------------------------
-  signal systemClk : std_ulogic; -- system clock 
+  signal systemClk : std_logic; -- system clock 
   signal displayLED : integer := 0;
-  signal reset : std_ulogic;     -- reset
-  signal pushButton : std_ulogic;  -- PB
-  signal buttonPush : std_ulogic; -- output of onePulse
+  signal reset : std_logic;     -- reset
+  signal pushButton : std_logic;  -- PB
+  signal buttonPush : std_logic; -- output of onePulse
   signal BR : unsigned(7 downto 0);
-  signal switches : std_ulogic_vector(3 downto 0); -- 4 switches
-  signal LED_register : std_ulogic_vector(7 downto 0); -- LED input register
-  signal LEDs: std_ulogic_vector(7 downto 0);          -- LED output         
-  signal oneLED : std_ulogic;                          -- first LED that be controlled by base rate
-  signal sevenLEDs : std_ulogic_vector(6 downto 0);    -- 7 LEDs that will be controlled by state machine patterns
+  signal switches : std_logic_vector(3 downto 0); -- 4 switches
+  signal LED_register : std_logic_vector(7 downto 0); -- LED input register
+  signal LEDs: std_logic_vector(7 downto 0);          -- LED output         
+  signal oneLED : std_logic;                          -- first LED that be controlled by base rate
+  signal sevenLEDs : std_logic_vector(6 downto 0);    -- 7 LEDs that will be controlled by state machine patterns
   
-  signal sync_to_debounce : std_ulogic;               -- sync to debouncer signal
-  signal debounced : std_ulogic;                      -- signal from debouncer
-  signal debounce_to_onePulse : std_ulogic;
-  signal newClk : std_ulogic;                         -- generated clock
-  signal choosePatt : std_ulogic_vector(3 downto 0);
-  signal swPatt : std_ulogic_vector(6 downto 0);
-  signal patt0LED : std_ulogic_vector(6 downto 0);
-  signal patt1LED : std_ulogic_vector(6 downto 0);
-  signal patt2LED : std_ulogic_vector(6 downto 0);
-  signal patt3LED : std_ulogic_vector(6 downto 0);
-  signal patt4LED : std_ulogic_vector(6 downto 0);
+  signal sync_to_debounce : std_logic;               -- sync to debouncer signal
+  signal debounced : std_logic;                      -- signal from debouncer
+  signal debounce_to_onePulse : std_logic;
+  signal newClk : std_logic;                         -- generated clock
+  signal choosePatt : std_logic_vector(3 downto 0);
+  signal swPatt : std_logic_vector(6 downto 0);
+  signal patt0LED : std_logic_vector(6 downto 0);
+  signal patt1LED : std_logic_vector(6 downto 0);
+  signal patt2LED : std_logic_vector(6 downto 0);
+  signal patt3LED : std_logic_vector(6 downto 0);
+  signal patt4LED : std_logic_vector(6 downto 0);
 
   signal internDone : boolean;
   signal internEnable : boolean;
@@ -52,9 +52,9 @@ architecture LED_patterns_arch of LED_patterns is
 -- COMPONENTS ----------------------------------------------------
   component synchronizer is
     port(
-      clk : in std_ulogic;
-      async : in std_ulogic;
-      sync : out std_ulogic
+      clk : in std_logic;
+      async : in std_logic;
+      sync : out std_logic
       );
   end component synchronizer;
 
@@ -64,80 +64,80 @@ architecture LED_patterns_arch of LED_patterns is
       debounce_time : time
       );
     port(
-      clk : in std_ulogic;
-      rst : in std_ulogic;
-      input : in std_ulogic;
-      debounced : out std_ulogic
+      clk : in std_logic;
+      rst : in std_logic;
+      input : in std_logic;
+      debounced : out std_logic
       );
     end component debouncer;
 
   component one_pulse is
     port(
-    clk : in std_ulogic;
-    rst : in std_ulogic;
-    input : in std_ulogic;
-    pulse : out std_ulogic
+    clk : in std_logic;
+    rst : in std_logic;
+    input : in std_logic;
+    pulse : out std_logic
     );
   end component one_pulse;
 
   component ClockGenerator 
     generic  (system_clock_period : time := 20ns);
-    port     (clk : in std_ulogic; 
-	      PB : in std_ulogic;  
-              SW : in std_ulogic_vector(3 downto 0); 
+    port     (clk : in std_logic; 
+	      PB : in std_logic;  
+              SW : in std_logic_vector(3 downto 0); 
 	      base_period : in unsigned(7 downto 0);
-              LEDout : out std_ulogic;
-	      clkOut : out std_ulogic
+              LEDout : out std_logic;
+	      clkOut : out std_logic
 	      );
   end component ClockGenerator; 
 
   component State_Machine
-    port (systemClk : in std_ulogic;
-	  rst : in std_ulogic; -- system reset (assume active high, change at top level if needed)
-          PB : in std_ulogic;  -- Pushbutton to change state (assume active high, change at top level if needed)
-          SW : in std_ulogic_vector(3 downto 0); -- Switches that determine the next state to be selected
+    port (systemClk : in std_logic;
+	  rst : in std_logic; -- system reset (assume active high, change at top level if needed)
+          PB : in std_logic;  -- Pushbutton to change state (assume active high, change at top level if needed)
+          SW : in std_logic_vector(3 downto 0); -- Switches that determine the next state to be selected
 	  done : in boolean;
-          Sel : out std_ulogic_vector(3 downto 0);
+          Sel : out std_logic_vector(3 downto 0);
           enable : out boolean
          );
   end component;
 
   component showSW
-    port(systemClk : in std_ulogic;
-	 SW : in std_ulogic_vector(3 downto 0);
+    port(systemClk : in std_logic;
+	 SW : in std_logic_vector(3 downto 0);
 	 enable : in boolean;
 	 done : out boolean;
-	 LEDs : out std_ulogic_vector(6 downto 0)
+	 LEDs : out std_logic_vector(6 downto 0)
 	 );
   end component showSW;
   
   component Pattern0
-    port(genClk : in std_ulogic;
-	 LEDS : out std_ulogic_vector(6 downto 0)
+    port(genClk : in std_logic;
+	 LEDS : out std_logic_vector(6 downto 0)
 	 );
   end component Pattern0;
 
   component Pattern1
-    port(genClk : in std_ulogic;
-         LEDs : out std_ulogic_vector(6 downto 0)
+    port(genClk : in std_logic;
+         LEDs : out std_logic_vector(6 downto 0)
 	 );
   end component Pattern1;
 
   component Pattern2
-    port(genClk : in std_ulogic;
-         LEDs : out std_ulogic_vector(6 downto 0)
+    port(genClk : in std_logic;
+         LEDs : out std_logic_vector(6 downto 0)
 	 );
   end component Pattern2;
 
   component Pattern3
-    port(genClk : in std_ulogic;
-         LEDs : out std_ulogic_vector(6 downto 0)
+    port(genClk : in std_logic;
+         LEDs : out std_logic_vector(6 downto 0)
 	 );
   end component Pattern3;
 
   component Pattern4
-    port(genClk : in std_ulogic;
-	 LEDs : out std_ulogic_vector(6 downto 0)
+    port(genClk : in std_logic;
+	 LEDs : out std_logic_vector(6 downto 0)
 	 );
   end component Pattern4;
 ------------------------------------------------------------

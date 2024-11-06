@@ -83,20 +83,20 @@ architecture LED_patterns_arch of LED_patterns is
   component ClockGenerator 
     generic  (system_clock_period : time := 20ns);
     port     (clk : in std_logic; 
-	      PB : in std_logic;  
+	           PB : in std_logic;  
               SW : in std_logic_vector(3 downto 0); 
-	      base_period : in unsigned(7 downto 0);
+	           base_period : in unsigned(7 downto 0);
               LEDout : out std_logic;
-	      clkOut : out std_logic
-	      );
+	           clkOut : out std_logic
+	           );
   end component ClockGenerator; 
 
   component State_Machine
     port (systemClk : in std_logic;
-	  rst : in std_logic; -- system reset (assume active high, change at top level if needed)
+	       rst : in std_logic; -- system reset (assume active high, change at top level if needed)
           PB : in std_logic;  -- Pushbutton to change state (assume active high, change at top level if needed)
           SW : in std_logic_vector(3 downto 0); -- Switches that determine the next state to be selected
-	  done : in boolean;
+	       done : in boolean;
           Sel : out std_logic_vector(3 downto 0);
           enable : out boolean
          );
@@ -104,41 +104,41 @@ architecture LED_patterns_arch of LED_patterns is
 
   component showSW
     port(systemClk : in std_logic;
-	 SW : in std_logic_vector(3 downto 0);
-	 enable : in boolean;
-	 done : out boolean;
-	 LEDs : out std_logic_vector(6 downto 0)
-	 );
+	      SW : in std_logic_vector(3 downto 0);
+	      enable : in boolean;
+	      done : out boolean;
+	      LEDs : out std_logic_vector(6 downto 0)
+	      );
   end component showSW;
   
   component Pattern0
     port(genClk : in std_logic;
-	 LEDS : out std_logic_vector(6 downto 0)
-	 );
+	      LEDS : out std_logic_vector(6 downto 0)
+	      );
   end component Pattern0;
 
   component Pattern1
     port(genClk : in std_logic;
          LEDs : out std_logic_vector(6 downto 0)
-	 );
+	      );
   end component Pattern1;
 
   component Pattern2
     port(genClk : in std_logic;
          LEDs : out std_logic_vector(6 downto 0)
-	 );
+	      );
   end component Pattern2;
 
   component Pattern3
     port(genClk : in std_logic;
          LEDs : out std_logic_vector(6 downto 0)
-	 );
+	     );
   end component Pattern3;
 
   component Pattern4
     port(genClk : in std_logic;
-	 LEDs : out std_logic_vector(6 downto 0)
-	 );
+	      LEDs : out std_logic_vector(6 downto 0)
+	     );
   end component Pattern4;
 ------------------------------------------------------------
 
@@ -157,59 +157,59 @@ architecture LED_patterns_arch of LED_patterns is
  -- LEDs(6 downto 0) <= sevenLEDs;
 
   SYNC_MAP : synchronizer port map(clk => systemClk,
-		                   async => PB,
-		                   sync => sync_to_debounce);
+		                             async => PB,
+		                             sync => sync_to_debounce);
 
   
   DEBOUNCE_MAP : debouncer generic map(clk_period => 20 ns, -- what should I put here?
                                        debounce_time => 100 ns) -- what should I put here?
                            port map   (clk => systemClk,
-				       rst => reset,
-		 	 	       input => sync_to_debounce,
-		                       debounced => debounce_to_onePulse);
+				                           rst => reset,
+		 	 	                           input => sync_to_debounce,
+		                                 debounced => debounce_to_onePulse);
 
   ONE_PULSE_MAP : one_pulse port map (clk => systemClk,
-   				      rst => reset,
-    				      input => debounce_to_onePulse,
-   				      pulse => buttonPush
-    				      );
+   				                       rst => reset,
+    				                       input => debounce_to_onePulse,
+   				                       pulse => buttonPush
+    				                       );
 
   CLOCK_GENERATOR_MAP : ClockGenerator generic map(system_clock_period => 20ns)
 				       port map   (clk => systemClk,
-						   PB => buttonPush, -- synchronized and debounced button push goes into clock generator
-                                                   SW => switches,
-						   base_period => BR,
-                                                   LEDout => oneLED,
-					           clkOut => newClk);
+						             PB => buttonPush, -- synchronized and debounced button push goes into clock generator
+                               SW => switches,
+						             base_period => BR,
+                               LEDout => oneLED,
+					                clkOut => newClk);
 
   STATE_MACHINE_MAP : State_Machine port map(systemClk => systemClk,
-					     rst => rst,
-					     PB => buttonPush,
-					     SW => switches,
-					     done => internDone,
-					     Sel => choosePatt,
-					     enable => internEnable);
+					                              rst => rst,
+					                              PB => buttonPush,
+					                              SW => switches,
+					                              done => internDone,
+					                              Sel => choosePatt,
+					                              enable => internEnable);
 
   SHOWSW_MAP : showSW port map(systemClk => systemClk,
-			       SW => switches,
-	                       enable => internEnable,
-			       done => internDone,
-			       LEDs => swPatt);
+			                      SW => switches,
+	                            enable => internEnable,
+			                      done => internDone,
+			                      LEDs => swPatt);
 
   PATTERN0_MAP : Pattern0 port map(genClk => newClk,
-				   LEDS => patt0LED);
+				                       LEDS => patt0LED);
 
   PATTERN1_MAP : Pattern1 port map(genClk => newClk,
                                    LEDs => patt1LED);
 
   PATTERN2_MAP : Pattern2 port map(genClk => newClk,
-				   LEDs => patt2LED);
+				                       LEDs => patt2LED);
 
   PATTERN3_MAP : Pattern3 port map(genClk => newClk,
-				   LEDs => patt3LED);
+				                       LEDs => patt3LED);
 
   PATTERN4_MAP : Pattern4 port map (genClk => newClk,
-		 		    LEDs => patt4LED);
+		 		                        LEDs => patt4LED);
   
 
 
@@ -222,13 +222,13 @@ architecture LED_patterns_arch of LED_patterns is
   choosePattern : process (choosePatt)
     begin
           case (choosePatt) is
-	    when "0000" => LED(6 downto 0) <= patt0LED;
+	         when "0000" => LED(6 downto 0) <= patt0LED;
             when "0001" => LED(6 downto 0) <= patt1LED;
             when "0010" => LED(6 downto 0) <= patt2LED;
             when "0011" => LED(6 downto 0) <= patt3LED;
             when "0100" => LED(6 downto 0) <= patt4LED;
-	    when "1000" => LED(6 downto 0) <= swPatt;
-	    when others => LED(6 downto 0) <= patt1LED;
+	         when "1000" => LED(6 downto 0) <= swPatt;
+	         when others => LED(6 downto 0) <= patt0LED;
           end case;
   end process;
       

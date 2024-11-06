@@ -8,24 +8,24 @@ end entity;
 architecture State_Machine_tb_arch of State_Machine_tb is
 
   component State_Machine is
-    port (systemClk : in std_ulogic;
-	  rst : in std_ulogic; -- system reset (assume active high, change at top level if needed)
-          PB : in std_ulogic;  -- Pushbutton to change state (assume active high, change at top level if needed)
-          SW : in std_ulogic_vector(3 downto 0); -- Switches that determine the next state to be selected
+    port (systemClk : in std_logic;
+	  rst : in std_logic; -- system reset (assume active high, change at top level if needed)
+          PB : in std_logic;  -- Pushbutton to change state (assume active high, change at top level if needed)
+          SW : in std_logic_vector(3 downto 0); -- Switches that determine the next state to be selected
           done : in boolean;
-	  Sel : out std_ulogic_vector(3 downto 0);
+	  Sel : out std_logic_vector(3 downto 0);
 	  enable : out boolean
           );
   end component;
 
 
-  signal Clk_tb : std_ulogic := '0';
-  signal rst_tb : std_ulogic;
+  signal Clk_tb : std_logic := '0';
+  signal rst_tb : std_logic;
   signal done_tb : boolean;
   signal enable_tb : boolean;
-  signal PB_tb : std_ulogic;
-  signal SW_tb : std_ulogic_vector(3 downto 0);
-  signal Sel_tb : std_ulogic_vector(3 downto 0) := "0000";
+  signal PB_tb : std_logic;
+  signal SW_tb : std_logic_vector(3 downto 0);
+  signal Sel_tb : std_logic_vector(3 downto 0) := "0000";
 
   begin
 

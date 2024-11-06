@@ -859,6 +859,7 @@ set_instance_assignment -name GLOBAL_SIGNAL OFF -to u0|hps_0|hps_io|border|hps_s
 set_instance_assignment -name ENABLE_BENEFICIAL_SKEW_OPTIMIZATION_FOR_NON_GLOBAL_CLOCKS ON -to u0|hps_0|hps_io|border|hps_sdram_inst
 set_instance_assignment -name PLL_COMPENSATION_MODE DIRECT -to u0|hps_0|hps_io|border|hps_sdram_inst|pll0|fbout
 set_global_assignment -name QIP_FILE soc_system/synthesis/soc_system.qip
+set_global_assignment -name VHDL_FILE de10nano_top.vhd
 set_global_assignment -name VHDL_FILE ../sim/unknown/ClockGenerator.vhd
 set_global_assignment -name VHDL_FILE ../hdl/LED_Patterns/showSW.vhd
 set_global_assignment -name VHDL_FILE "../hdl/one-pulse/one_pulse.vhd"
@@ -874,7 +875,6 @@ set_global_assignment -name VHDL_FILE ../hdl/LED_Patterns/Pattern0.vhd
 set_global_assignment -name VHDL_FILE ../hdl/LED_Patterns/LED_Patterns.vhd
 set_global_assignment -name SDC_FILE de10nano.sdc
 set_global_assignment -name SOURCE_FILE db/de10nano_top.cmp.rdb
-set_global_assignment -name VHDL_FILE LEDPatterns/de10nano_top.vhd
 set_global_assignment -name VHDL_FILE ../hdl/LED_Patterns/led_patterns_avalon.vhd
 set_global_assignment -name VHDL_FILE ../hdl/LED_Patterns/hps_led_patterns.vhd
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

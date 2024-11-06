@@ -30,6 +30,14 @@
          type = "boolean";
       }
    }
+   element led_patterns_0
+   {
+      datum _sortIndex
+      {
+         value = "2";
+         type = "int";
+      }
+   }
    element soc_system
    {
       datum _originalDeviceFamily
@@ -312,6 +320,11 @@
  <interface name="hps_i2c0_clk" internal="hps.i2c0_clk" />
  <interface name="hps_i2c0_scl_in" internal="hps.i2c0_scl_in" />
  <interface name="hps_io" internal="hps.hps_io" type="conduit" dir="end" />
+ <interface
+   name="hps_patterns_0_export"
+   internal="led_patterns_0.export"
+   type="conduit"
+   dir="end" />
  <interface name="hps_spim0" internal="hps.spim0" />
  <interface name="hps_spim0_sclk_out" internal="hps.spim0_sclk_out" />
  <interface name="memory" internal="hps.memory" type="conduit" dir="end" />
@@ -852,11 +865,31 @@
   <parameter name="usb_mp_clk_div" value="0" />
   <parameter name="use_default_mpu_clk" value="true" />
  </module>
+ <module name="led_patterns_0" kind="led_patterns" version="1.0" enabled="1" />
+ <connection
+   kind="avalon"
+   version="23.1"
+   start="hps.h2f_lw_axi_master"
+   end="led_patterns_0.avalon_slave_0">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="clock"
+   version="23.1"
+   start="fpga_clk.clk"
+   end="led_patterns_0.clock" />
  <connection
    kind="clock"
    version="23.1"
    start="fpga_clk.clk"
    end="hps.h2f_lw_axi_clock" />
+ <connection
+   kind="reset"
+   version="23.1"
+   start="fpga_clk.clk_reset"
+   end="led_patterns_0.rst" />
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
  <interconnectRequirement for="$system" name="qsys_mm.maxAdditionalLatency" value="1" />
 </system>

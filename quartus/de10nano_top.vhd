@@ -263,7 +263,10 @@ architecture de10nano_arch of de10nano_top is
       memory_mem_dm                   : out   std_logic_vector(3 downto 0);
       memory_oct_rzqin                : in    std_logic;
       clk_clk                         : in    std_logic;
-      reset_reset_n                   : in    std_logic
+      reset_reset_n                   : in    std_logic;
+		hps_patterns_0_export_switches  : in    std_logic_vector(3 downto 0);
+		hps_patterns_0_export_push_button : in  std_logic;
+		hps_patterns_0_export_led		: out    std_logic_vector(7 downto 0)
     );
   end component soc_system;
 
@@ -280,12 +283,11 @@ architecture de10nano_arch of de10nano_top is
          LED_reg : in std_logic_vector(7 downto 0); -- LED register
          LED : out std_logic_vector(7 downto 0) -- LEDs on the DE10 NANO board
 	      );		
-  end component;
+  end component LED_Patterns;
 
 begin
 
-  u0 : component soc_system
-    port map (
+  u0 : soc_system port map(
       -- ethernet
       hps_io_hps_io_emac1_inst_tx_clk => hps_enet_gtx_clk,
       hps_io_hps_io_emac1_inst_txd0   => hps_enet_tx_data(0),
@@ -302,7 +304,6 @@ begin
       hps_io_hps_io_emac1_inst_rxd2   => hps_enet_rx_data(2),
       hps_io_hps_io_emac1_inst_rxd3   => hps_enet_rx_data(3),
       hps_io_hps_io_gpio_inst_gpio35  => hps_enet_int_n,
-
       -- sd card
       hps_io_hps_io_sdio_inst_cmd => hps_sd_cmd,
       hps_io_hps_io_sdio_inst_clk => hps_sd_clk,
@@ -310,7 +311,6 @@ begin
       hps_io_hps_io_sdio_inst_d1  => hps_sd_data(1),
       hps_io_hps_io_sdio_inst_d2  => hps_sd_data(2),
       hps_io_hps_io_sdio_inst_d3  => hps_sd_data(3),
-
       -- usb
       hps_io_hps_io_usb1_inst_d0  => hps_usb_data(0),
       hps_io_hps_io_usb1_inst_d1  => hps_usb_data(1),
@@ -324,12 +324,10 @@ begin
       hps_io_hps_io_usb1_inst_stp => hps_usb_stp,
       hps_io_hps_io_usb1_inst_dir => hps_usb_dir,
       hps_io_hps_io_usb1_inst_nxt => hps_usb_nxt,
-
       -- UART
       hps_io_hps_io_uart0_inst_rx    => hps_uart_rx,
       hps_io_hps_io_uart0_inst_tx    => hps_uart_tx,
       hps_io_hps_io_gpio_inst_gpio09 => hps_conv_usb_n,
-
       -- LTC connector
       hps_io_hps_io_gpio_inst_gpio40 => hps_ltc_gpio,
       hps_io_hps_io_spim1_inst_clk   => hps_spim_clk,
@@ -338,16 +336,13 @@ begin
       hps_io_hps_io_spim1_inst_ss0   => hps_spim_ss,
       hps_io_hps_io_i2c1_inst_sda    => hps_i2c1_sdat,
       hps_io_hps_io_i2c1_inst_scl    => hps_i2c1_sclk,
-
       -- I2C for accelerometer
       hps_io_hps_io_gpio_inst_gpio61 => hps_gsensor_int,
       hps_io_hps_io_i2c0_inst_sda    => hps_i2c0_sdat,
       hps_io_hps_io_i2c0_inst_scl    => hps_i2c0_sclk,
-
       -- HPS user I/O
       hps_io_hps_io_gpio_inst_gpio53 => hps_led,
       hps_io_hps_io_gpio_inst_gpio54 => hps_key,
-
       -- DDR3
       memory_mem_a       => hps_ddr3_addr,
       memory_mem_ba      => hps_ddr3_ba,
@@ -365,9 +360,11 @@ begin
       memory_mem_odt     => hps_ddr3_odt,
       memory_mem_dm      => hps_ddr3_dm,
       memory_oct_rzqin   => hps_ddr3_rzq,
-
       clk_clk       => fpga_clk1_50,
-      reset_reset_n => not push_button_n(1)
+      reset_reset_n => push_button_n(1),
+		hps_patterns_0_export_switches => sw,
+		hps_patterns_0_export_push_button => not push_button_n(0),
+		hps_patterns_0_export_led => led
     );
 
 --  LED_Patterns_Map : LED_Patterns generic map(system_clock_period => 20 ns)

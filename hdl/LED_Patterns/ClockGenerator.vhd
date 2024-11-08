@@ -38,7 +38,7 @@ architecture ClockGenerator_arch of ClockGenerator is
         when others => max <= max; -- 50000000
       end case;
     else
-	max <= max;
+	   max <= max;
     end if;
   end process;
 
@@ -61,12 +61,12 @@ architecture ClockGenerator_arch of ClockGenerator is
         if (counter < max) then
           counter <= counter + 1;
           testOut <= testOut;
-	else
+	     else
           testOut <= not testOut;
           toggleLED <= not toggleLED;
-	  counter <= 0;
+	       counter <= 0;
         end if;
-	clkOut <= testOut;
+	     clkOut <= testOut;
         LEDout <= toggleLED;
       end if;
   end process;

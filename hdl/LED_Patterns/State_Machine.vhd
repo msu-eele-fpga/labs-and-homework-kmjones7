@@ -119,17 +119,19 @@ architecture State_Machine_arch of State_Machine is
 ----------------------------------------------------------------------
   OUTPUT_LOGIC : process (systemClk)
     begin
+	 if (rising_edge(systemClk)) then
         case (current_state) is
-          when sCount => internSel <= "1000"; internEnable <= true;
           when s0 => internSel <= "0000"; internEnable <= false;
 	       when s1 => internSel <= "0001"; internEnable <= false;
 	       when s2 => internSel <= "0010"; internEnable <= false;
 	       when s3 => internSel <= "0011"; internEnable <= false;
 	       when s4 => internSel <= "0100"; internEnable <= false;
+			 when sCount => internSel <= "1000"; internEnable <= true;
           when others => internSel <= "0000";
         end case; 
         Sel <= internSel;
         enable <= internEnable;
+    end if;
   end process;
 
 

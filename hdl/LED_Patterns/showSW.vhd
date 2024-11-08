@@ -24,15 +24,15 @@ architecture showSW_arch of showSW is
       if(rising_edge(systemClk)) then
         if (enable = true and internDone = true) then -- if enabled and hasn't started, reset count and done
           count <= 0;
-	  internDone <= false;
+	       internDone <= false;
         elsif (enable = true) then                   -- if enabled and HAS started
-	  if(count < 50000000) then
-	    count <= count + 1;
+	       if(count < 50000000) then
+	         count <= count + 1;
             internLEDs <= "000" & SW;
-	    internDone <= false;
+	         internDone <= false;
           else
-	    internDone <= true;
-	    internLEDs <= "1010101";
+	         internDone <= true;
+	         internLEDs <= "1010101";
           end if;
         end if;
       end if;

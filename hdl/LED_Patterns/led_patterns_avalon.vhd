@@ -48,12 +48,6 @@ architecture led_patterns_avalon_arch of led_patterns_avalon is
   signal bp_reg : std_logic_vector(31 downto 0) :=  "00000000000000000000000000010000";
   signal led_reg : std_logic_vector(31 downto 0) := "00000000000000000000000000010000";
   
--- define registers and bus transactions
-
--- Registers for the following:"00000100110011001100110011001101";
--- -- hps_led_control
--- -- base_period
--- -- led_reg
 
 begin
 

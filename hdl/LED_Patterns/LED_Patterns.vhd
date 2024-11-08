@@ -150,51 +150,48 @@ architecture LED_patterns_arch of LED_patterns is
   pushButton <= PB;
   switches <= SW;
   BR <= Base_rate;
-  
   LED_register <= LED_reg;
  
---  LEDs(7) <= oneLED;
- -- LEDs(6 downto 0) <= sevenLEDs;
 
   SYNC_MAP : synchronizer port map(clk => systemClk,
-		                             async => PB,
-		                             sync => sync_to_debounce);
+		                             async => PB,                -- takes in PB signal
+		                             sync => sync_to_debounce);  -- produces a synchronous PB signal
 
   
-  DEBOUNCE_MAP : debouncer generic map(clk_period => 20 ns, -- what should I put here?
-                                       debounce_time => 100 ns) -- what should I put here?
+  DEBOUNCE_MAP : debouncer generic map(clk_period => 20 ns, 
+                                       debounce_time => 100 ns) 
                            port map   (clk => systemClk,
 				                           rst => reset,
-		 	 	                           input => sync_to_debounce,
-		                                 debounced => debounce_to_onePulse);
+		 	 	                           input => sync_to_debounce, -- takes in synchronous PB signal
+		                                 debounced => debounce_to_onePulse); -- produces a debounced synchronous PB signal
 
   ONE_PULSE_MAP : one_pulse port map (clk => systemClk,
    				                       rst => reset,
-    				                       input => debounce_to_onePulse,
-   				                       pulse => buttonPush
+    				                       input => debounce_to_onePulse, -- takes in debounced synchronous PB signal
+   				                       pulse => buttonPush            -- produces a one clk period debounced synchronous PB signal
     				                       );
 
   CLOCK_GENERATOR_MAP : ClockGenerator generic map(system_clock_period => 20ns)
 				       port map   (clk => systemClk,
-						             PB => buttonPush, -- synchronized and debounced button push goes into clock generator
+						             PB => buttonPush, -- one pulse PB signal
                                SW => switches,
 						             base_period => BR,
-                               LEDout => oneLED,
-					                clkOut => newClk);
+                               LEDout => oneLED, -- one LED flashing at current base rate
+					                clkOut => newClk); -- new generated clock frequency
 
   STATE_MACHINE_MAP : State_Machine port map(systemClk => systemClk,
 					                              rst => rst,
-					                              PB => buttonPush,
+					                              PB => buttonPush,  -- one pulse PB signal
 					                              SW => switches,
-					                              done => internDone,
-					                              Sel => choosePatt,
-					                              enable => internEnable);
+					                              done => internDone,  -- showSW done signal
+					                              Sel => choosePatt,  -- produces a select signal to choose LED Pattern
+					                              enable => internEnable);  -- enables showSW counter
 
   SHOWSW_MAP : showSW port map(systemClk => systemClk,
 			                      SW => switches,
-	                            enable => internEnable,
-			                      done => internDone,
-			                      LEDs => swPatt);
+	                            enable => internEnable,  -- enable counter signal
+			                      done => internDone,      -- counter done signal
+			                      LEDs => swPatt);         -- switch LED Pattern
 
   PATTERN0_MAP : Pattern0 port map(genClk => newClk,
 				                       LEDS => patt0LED);
@@ -219,18 +216,18 @@ architecture LED_patterns_arch of LED_patterns is
   end process;
 
 
-  choosePattern : process (choosePatt)
-    begin
-          case (choosePatt) is
-	         when "0000" => LED(6 downto 0) <= patt0LED;
-            when "0001" => LED(6 downto 0) <= patt1LED;
-            when "0010" => LED(6 downto 0) <= patt2LED;
-            when "0011" => LED(6 downto 0) <= patt3LED;
-            when "0100" => LED(6 downto 0) <= patt4LED;
-	         when "1000" => LED(6 downto 0) <= swPatt;
-	         when others => LED(6 downto 0) <= patt0LED;
-          end case;
-  end process;
+--  choosePattern : process (choosePatt)
+--    begin
+--          case (choosePatt) is
+--	         when "0000" => LED(6 downto 0) <= patt0LED;
+--         --   when "0001" => LED(6 downto 0) <= patt1LED;
+--         --   when "0010" => LED(6 downto 0) <= patt2LED;
+--            when "0011" => LED(6 downto 0) <= patt3LED;
+--            when "0100" => LED(6 downto 0) <= patt4LED;
+--	         when "1000" => LED(6 downto 0) <= swPatt;
+--	         when others => LED(6 downto 0) <= patt0LED;
+--          end case;
+--  end process;
       
 --------------------------------------------------------------------------------------------------
 

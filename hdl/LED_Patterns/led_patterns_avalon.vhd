@@ -44,9 +44,10 @@ architecture led_patterns_avalon_arch of led_patterns_avalon is
 
 
   
-  signal hps_reg : std_logic_vector(31 downto 0) := "00000000000000000000000000010000";
+  signal hps_reg : std_logic_vector(31 downto 0) := "00000000000000000000000000000000";
   signal bp_reg : std_logic_vector(31 downto 0) :=  "00000000000000000000000000010000";
   signal led_reg : std_logic_vector(31 downto 0) := "00000000000000000000000000010000";
+  signal internHPS : boolean := false;
   
 
 begin
@@ -66,7 +67,7 @@ begin
   avalon_register_write : process(clk,rst)
   begin
     if rst = '1' then
-	   hps_reg <= "00000000000000000000000000010000";
+	   hps_reg <= "00000000000000000000000000000000";
 		bp_reg <=  "00000000000000000000000000010000";
 		led_reg <= "00000000000000000000000000010000";
     elsif rising_edge(clk) and avs_write = '1' then
@@ -79,12 +80,22 @@ begin
     end if;
   end process;
   
+  avalon_HPS_Control: process(clk)
+  begin
+    if (hps_reg = "00000000000000000000000000000001") then
+      internHPS <= true; -- SW mode
+    else
+      internHPS <= false; -- HW mode
+    end if;
+  end process;
+  
+  
   LED_Patterns_MAP : LED_Patterns generic map(system_clock_period => 20 ns)
 											 port map(clk => clk,
 														 rst => rst,
 														 PB => push_button,
 														 SW => switches,
-														 HPS_LED_control => false,
+														 HPS_LED_control => internHPS,
 														 Base_rate => unsigned(bp_reg(7 downto 0)),
 														 LED_reg => led_reg(7 downto 0),
 														 LED => led);

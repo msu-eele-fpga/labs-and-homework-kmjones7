@@ -32,7 +32,7 @@ architecture showSW_arch of showSW is
 	         internDone <= false;
           else
 	         internDone <= true;
-	         internLEDs <= "1010101";
+	         internLEDs <= "0000000";
           end if;
         end if;
       end if;

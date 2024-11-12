@@ -28,6 +28,7 @@ architecture LED_patterns_arch of LED_patterns is
   signal buttonPush : std_logic; -- output of onePulse
   signal BR : unsigned(7 downto 0);
   signal switches : std_logic_vector(3 downto 0); -- 4 switches
+  signal HPS : boolean;
   signal LED_register : std_logic_vector(7 downto 0); -- LED input register
   signal LEDs: std_logic_vector(7 downto 0);          -- LED output         
   signal oneLED : std_logic;                          -- first LED that be controlled by base rate
@@ -38,7 +39,8 @@ architecture LED_patterns_arch of LED_patterns is
   signal debounce_to_onePulse : std_logic;
   signal newClk : std_logic;                         -- generated clock
   signal choosePatt : std_logic_vector(3 downto 0);
-  signal swPatt : std_logic_vector(6 downto 0);
+  signal switchPatt : std_logic_vector(6 downto 0);
+  signal pattSWLED : std_logic_vector(7 downto 0);
   signal patt0LED : std_logic_vector(6 downto 0);
   signal patt1LED : std_logic_vector(6 downto 0);
   signal patt2LED : std_logic_vector(6 downto 0);
@@ -98,7 +100,9 @@ architecture LED_patterns_arch of LED_patterns is
           SW : in std_logic_vector(3 downto 0); -- Switches that determine the next state to be selected
 	       done : in boolean;
           Sel : out std_logic_vector(3 downto 0);
-          enable : out boolean
+          enable : out boolean;
+			 HPS_LED_control : in boolean;
+			 LED_reg : in std_logic_vector(7 downto 0)
          );
   end component;
 
@@ -110,6 +114,13 @@ architecture LED_patterns_arch of LED_patterns is
 	      LEDs : out std_logic_vector(6 downto 0)
 	      );
   end component showSW;
+  
+  component PatternSW
+    port(clk : in std_logic;
+	      LED_reg : in std_logic_vector(6 downto 0);
+		   LEDS : out std_logic_vector(6 downto 0)
+			);
+  end component PatternSW;
   
   component Pattern0
     port(genClk : in std_logic;
@@ -151,6 +162,7 @@ architecture LED_patterns_arch of LED_patterns is
   switches <= SW;
   BR <= Base_rate;
   LED_register <= LED_reg;
+  HPS <= HPS_LED_control;
  
 
   SYNC_MAP : synchronizer port map(clk => systemClk,
@@ -185,13 +197,19 @@ architecture LED_patterns_arch of LED_patterns is
 					                              SW => switches,
 					                              done => internDone,  -- showSW done signal
 					                              Sel => choosePatt,  -- produces a select signal to choose LED Pattern
-					                              enable => internEnable);  -- enables showSW counter
+					                              enable => internEnable, -- enables showSW counter
+															HPS_LED_control => HPS,
+															LED_reg => LED_register); 
 
   SHOWSW_MAP : showSW port map(systemClk => systemClk,
 			                      SW => switches,
 	                            enable => internEnable,  -- enable counter signal
 			                      done => internDone,      -- counter done signal
-			                      LEDs => swPatt);         -- switch LED Pattern
+			                      LEDs => switchPatt);         -- switch LED Pattern
+										 
+  PATTERNSW_MAP : PatternSW port map (clk => clk,
+                                      LED_reg => LED_register,
+												  LEDS => pattSWLED);
 
   PATTERN0_MAP : Pattern0 port map(genClk => newClk,
 				                       LEDS => patt0LED);
@@ -216,18 +234,20 @@ architecture LED_patterns_arch of LED_patterns is
   end process;
 
 
---  choosePattern : process (choosePatt)
---    begin
---          case (choosePatt) is
---	         when "0000" => LED(6 downto 0) <= patt0LED;
---         --   when "0001" => LED(6 downto 0) <= patt1LED;
---         --   when "0010" => LED(6 downto 0) <= patt2LED;
---            when "0011" => LED(6 downto 0) <= patt3LED;
---            when "0100" => LED(6 downto 0) <= patt4LED;
---	         when "1000" => LED(6 downto 0) <= swPatt;
---	         when others => LED(6 downto 0) <= patt0LED;
---          end case;
---  end process;
+  choosePattern : process (systemClk)
+    begin
+          case (choosePatt) is
+	         when "0000" => LED(6 downto 0) <= patt0LED;
+            when "0001" => LED(6 downto 0) <= patt1LED;
+            when "0010" => LED(6 downto 0) <= patt2LED;
+            when "0011" => LED(6 downto 0) <= patt3LED;
+            when "0100" => LED(6 downto 0) <= patt4LED;
+			--	when "0110" => LED(6 downto 0) <= LED_r
+	         when "1000" => LED(6 downto 0) <= "0000000"; --swPatt;
+				when "1100" => LEDs <= pattSWLED;
+	         when others => LED(6 downto 0) <= patt0LED;
+          end case;
+  end process;
       
 --------------------------------------------------------------------------------------------------
 

@@ -10,7 +10,9 @@ entity State_Machine is
         SW : in std_logic_vector(3 downto 0); -- Switches that determine the next state to be selected
         done : in boolean;
         Sel : out std_logic_vector(3 downto 0);
-        enable : out boolean
+        enable : out boolean;
+		  HPS_LED_control : in boolean;
+		  LED_reg : in std_logic_vector(7 downto 0)
        );
 end entity State_Machine;
 
@@ -26,7 +28,7 @@ architecture State_Machine_arch of State_Machine is
   signal internEnable : boolean:= false;
 
 
-  type State_Type is (s0, s1, s2, s3, s4, sCount);
+  type State_Type is (s0, s1, s2, s3, s4, sCount, sSW);
   signal current_state, next_state, previous_state : State_Type;
 
   component synchronizer is
@@ -89,48 +91,55 @@ architecture State_Machine_arch of State_Machine is
 -- STATE MEMORY ------------------------------------------------------
   STATE_MEMORY : process (systemClk, rst)
     begin
-      if (rst = '1') then		-- if reset = 0, 
-	     current_state <= s0;
-      elsif (rising_edge(systemClk)) then
-	     current_state <= next_state;
-      end if;
+	   if (HPS_LED_control = true) then -- if in HW mode
+			if (rst = '1') then		-- if reset = 0, 
+			  current_state <= s0;
+			elsif (rising_edge(systemClk)) then
+			  current_state <= next_state;
+			end if;
+	   end if;
   end process;
 -------------------------------------------------------------------------
   NEXT_STATE_LOGIC : process (systemClk)
     begin
 	   if (rising_edge(systemClk)) then	
-        if (PB = '1') then  -- if button has been pushed, show SW on LEDS
-            previous_state <= current_state;
-            next_state <= sCount;  
-        elsif (done = true) then  -- if SW are done on LEDS
-          case(SW) is
-           when "0000" => next_state <= s0;
-	        when "0001" => next_state <= s1;
-	        when "0010" => next_state <= s2;
-	        when "0011" => next_state <= s3;
-	        when "0100" => next_state <= s4;
-	        when others => next_state <= previous_state;
-         end case;	
-        else				         -- if SW AREN'T done on LEDS or push button hasn't changed	
-        next_state <= current_state;  
-      end if;
+		  if (HPS_LED_control = true) then -- if in HW mode
+			  if (PB = '1') then  -- if button has been pushed, show SW on LEDS
+				--   previous_state <= current_state;
+					next_state <= sCount;  
+			  elsif (done = true) then  -- if SW are done on LEDS
+				 case(SW) is
+				  when "0000" => next_state <= s0;
+				  when "0001" => next_state <= s1;
+				  when "0010" => next_state <= s2;
+				  when "0011" => next_state <= s3;
+				  when "0100" => next_state <= s4;
+				  when others => next_state <= previous_state;
+				end case;	
+		 --    else				         -- if SW AREN'T done on LEDS or push button hasn't changed	
+		 --    next_state <= current_state; 
+			  end if;
+		 else -- if in SW mode
+		   next_state <= sSW;
+	    end if;
 	  end if;
   end process;
 ----------------------------------------------------------------------
   OUTPUT_LOGIC : process (systemClk)
     begin
 	 if (rising_edge(systemClk)) then
-        case (current_state) is
-          when s0 => internSel <= "0000"; internEnable <= false;
-	       when s1 => internSel <= "0001"; internEnable <= false;
-	       when s2 => internSel <= "0010"; internEnable <= false;
-	       when s3 => internSel <= "0011"; internEnable <= false;
-	       when s4 => internSel <= "0100"; internEnable <= false;
+		  case (current_state) is
+			 when s0 => internSel <= "0000"; internEnable <= false;
+			 when s1 => internSel <= "0001"; internEnable <= false;
+			 when s2 => internSel <= "0010"; internEnable <= false;
+			 when s3 => internSel <= "0011"; internEnable <= false;
+			 when s4 => internSel <= "0100"; internEnable <= false;
 			 when sCount => internSel <= "1000"; internEnable <= true;
-          when others => internSel <= "0000";
-        end case; 
-        Sel <= internSel;
-        enable <= internEnable;
+			 when sSW => internSel <= "1100"; internEnable <= false; -- if in SW mode
+			 when others => internSel <= "0000";
+		  end case; 
+		  Sel <= internSel;
+		  enable <= internEnable;
     end if;
   end process;
 

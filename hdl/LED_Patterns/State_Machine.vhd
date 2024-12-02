@@ -26,6 +26,7 @@ architecture State_Machine_arch of State_Machine is
   signal internLED : std_logic;
   signal sixLEDs : std_logic_vector(6 downto 0);
   signal internEnable : boolean:= false;
+  signal outOfSW : boolean := false;
 
 
   type State_Type is (s0, s1, s2, s3, s4, sCount, sSW);
@@ -65,25 +66,25 @@ architecture State_Machine_arch of State_Machine is
 
   begin
 
-  SYNC_MAP : synchronizer port map(clk => systemClk,
-		                             async => PB,
-		                             sync => sync_to_debounce);
-
-  
-  DEBOUNCE_MAP : debouncer generic map(clk_period => 20 ns, -- what should I put here?
-                                       debounce_time => 1000 ns) -- what should I put here?
-                           port map   (clk => systemClk,
-				                           rst => rst,
-		 	 	                           input => sync_to_debounce,
-		                                 debounced => debounced);
-
-  CLOCK_GENERATOR_MAP : ClockGenerator generic map(system_clock_period => 20ns)
-				                           port map   (clk => systemClk,
-						                                 PB => debounced, -- synchronized and debounced button push goes into clock generator
-                                                   SW => SW,
-						                                 base_period => Base_rate,
-   						                              LEDout => internLED,
-					                                    clkOut => genClk);
+--  SYNC_MAP : synchronizer port map(clk => systemClk,
+--		                             async => PB,
+--		                             sync => sync_to_debounce);
+--
+--  
+--  DEBOUNCE_MAP : debouncer generic map(clk_period => 20 ns, -- what should I put here?
+--                                       debounce_time => 1000 ns) -- what should I put here?
+--                           port map   (clk => systemClk,
+--				                           rst => rst,
+--		 	 	                           input => sync_to_debounce,
+--		                                 debounced => debounced);
+--
+--  CLOCK_GENERATOR_MAP : ClockGenerator generic map(system_clock_period => 20ns)
+--				                           port map   (clk => systemClk,
+--						                                 PB => debounced, -- synchronized and debounced button push goes into clock generator
+--                                                   SW => SW,
+--						                                 base_period => Base_rate,
+--   						                              LEDout => internLED,
+--					                                    clkOut => genClk);
 
 
 --------------------------------------------------------------------
@@ -91,22 +92,21 @@ architecture State_Machine_arch of State_Machine is
 -- STATE MEMORY ------------------------------------------------------
   STATE_MEMORY : process (systemClk, rst)
     begin
-	   if (HPS_LED_control = true) then -- if in HW mode
 			if (rst = '1') then		-- if reset = 0, 
 			  current_state <= s0;
 			elsif (rising_edge(systemClk)) then
 			  current_state <= next_state;
 			end if;
-	   end if;
   end process;
 -------------------------------------------------------------------------
   NEXT_STATE_LOGIC : process (systemClk)
     begin
 	   if (rising_edge(systemClk)) then	
-		  if (HPS_LED_control = true) then -- if in HW mode
+		  if (HPS_LED_control = false) then -- HW mode
 			  if (PB = '1') then  -- if button has been pushed, show SW on LEDS
-				--   previous_state <= current_state;
+			  --    previous_state <= current_state;
 					next_state <= sCount;  
+					outOfSW <= false;
 			  elsif (done = true) then  -- if SW are done on LEDS
 				 case(SW) is
 				  when "0000" => next_state <= s0;
@@ -115,12 +115,15 @@ architecture State_Machine_arch of State_Machine is
 				  when "0011" => next_state <= s3;
 				  when "0100" => next_state <= s4;
 				  when others => next_state <= previous_state;
-				end case;	
-		 --    else				         -- if SW AREN'T done on LEDS or push button hasn't changed	
-		 --    next_state <= current_state; 
+				 end case;	
+			  elsif (outOfSW = true) then
+			    next_state <= s0;
+	        else				         -- if SW AREN'T done on LEDS or push button hasn't changed	
+	      --    next_state <= current_state; 
 			  end if;
-		 else -- if in SW mode
+		 else            -- SW mode
 		   next_state <= sSW;
+			outOfSW <= true;
 	    end if;
 	  end if;
   end process;
@@ -136,7 +139,7 @@ architecture State_Machine_arch of State_Machine is
 			 when s4 => internSel <= "0100"; internEnable <= false;
 			 when sCount => internSel <= "1000"; internEnable <= true;
 			 when sSW => internSel <= "1100"; internEnable <= false; -- if in SW mode
-			 when others => internSel <= "0000";
+			-- when others => internSel <= "0000";
 		  end case; 
 		  Sel <= internSel;
 		  enable <= internEnable;

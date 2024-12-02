@@ -88,6 +88,7 @@ architecture LED_patterns_arch of LED_patterns is
 	           PB : in std_logic;  
               SW : in std_logic_vector(3 downto 0); 
 	           base_period : in unsigned(7 downto 0);
+				  HPS_LED_control : in boolean;
               LEDout : out std_logic;
 	           clkOut : out std_logic
 	           );
@@ -117,8 +118,8 @@ architecture LED_patterns_arch of LED_patterns is
   
   component PatternSW
     port(clk : in std_logic;
-	      LED_reg : in std_logic_vector(6 downto 0);
-		   LEDS : out std_logic_vector(6 downto 0)
+	      LED_reg : in std_logic_vector(7 downto 0);
+		   LEDS : out std_logic_vector(7 downto 0)
 			);
   end component PatternSW;
   
@@ -188,6 +189,7 @@ architecture LED_patterns_arch of LED_patterns is
 						             PB => buttonPush, -- one pulse PB signal
                                SW => switches,
 						             base_period => BR,
+										 HPS_LED_control => HPS,
                                LEDout => oneLED, -- one LED flashing at current base rate
 					                clkOut => newClk); -- new generated clock frequency
 
@@ -228,10 +230,10 @@ architecture LED_patterns_arch of LED_patterns is
   
 
 
-  toggleLED1 : process (oneLED)
-    begin
-      LED(7) <= oneLED;
-  end process;
+--  toggleLED1 : process (oneLED)
+--    begin
+--      LED(7) <= oneLED;
+--  end process;
 
 
   choosePattern : process (systemClk)
@@ -242,9 +244,8 @@ architecture LED_patterns_arch of LED_patterns is
             when "0010" => LED(6 downto 0) <= patt2LED;
             when "0011" => LED(6 downto 0) <= patt3LED;
             when "0100" => LED(6 downto 0) <= patt4LED;
-			--	when "0110" => LED(6 downto 0) <= LED_r
 	         when "1000" => LED(6 downto 0) <= "0000000"; --swPatt;
-				when "1100" => LEDs <= pattSWLED;
+				when "1100" => LED <= pattSWLED;
 	         when others => LED(6 downto 0) <= patt0LED;
           end case;
   end process;

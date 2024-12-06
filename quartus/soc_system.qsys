@@ -335,6 +335,11 @@
    dir="end" />
  <interface name="hps_spim0" internal="hps.spim0" />
  <interface name="hps_spim0_sclk_out" internal="hps.spim0_sclk_out" />
+ <interface
+   name="jtag_mm1_master_reset"
+   internal="jtag_mm1.master_reset"
+   type="reset"
+   dir="start" />
  <interface name="memory" internal="hps.memory" type="conduit" dir="end" />
  <interface name="reset" internal="fpga_clk.clk_in_reset" type="reset" dir="end" />
  <module name="fpga_clk" kind="clock_source" version="23.1" enabled="1">
